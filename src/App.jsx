@@ -1,125 +1,122 @@
 import { useState } from "react";
-
 const YEARS = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035];
-
-const SEUN_META = [
-  { season: "🌤️ 초여름", direction: "확산(드러내기)", pivot: null },
-  { season: "☀️ 한여름", direction: "확산(드러내기)", pivot: "⭐ 한여름 정점 (낮이 가장 긴 날)" },
-  { season: "🌅 늦여름", direction: "확산→축적 전환", pivot: null },
-  { season: "🍂 초가을", direction: "축적(내실 다지기)", pivot: null },
-  { season: "🍁 중가을", direction: "축적(내실 다지기)", pivot: "⭐ 밤낮 같은 날 (가을 전환점)" },
-  { season: "🌾 늦가을", direction: "축적(내실 다지기)", pivot: null },
-  { season: "❄️ 초겨울", direction: "축적(내실 다지기)", pivot: null },
-  { season: "⛄ 한겨울", direction: "축적(방어)", pivot: "⭐ 밤이 가장 긴 날 (바닥→반등 시작)" },
-  { season: "🌫️ 늦겨울", direction: "축적→확산 준비", pivot: null },
-  { season: "🌱 초봄", direction: "확산(드러내기)", pivot: null },
-  { season: "🌸 중봄", direction: "확산(드러내기)", pivot: "⭐ 밤낮 같은 날 (봄 전환점)" },
+const SM = [
+  {s:"\uD83C\uDF24\uFE0F \uCD08\uC5EC\uB984",d:"\uD655\uC0B0(\uB4DC\uB7EC\uB0B4\uAE30)",p:null},
+  {s:"\u2600\uFE0F \uD55C\uC5EC\uB984",d:"\uD655\uC0B0(\uB4DC\uB7EC\uB0B4\uAE30)",p:"\u2B50 \uD558\uC9C0: \uB0AE\uC774 \uAC00\uC7A5 \uAE34 \uB0A0"},
+  {s:"\uD83C\uDF05 \uB2A6\uC5EC\uB984",d:"\uD655\uC0B0\u2192\uCD95\uC801 \uC804\uD658",p:null},
+  {s:"\uD83C\uDF42 \uCD08\uAC00\uC744",d:"\uCD95\uC801(\uB0B4\uC2E4)",p:null},
+  {s:"\uD83C\uDF41 \uC911\uAC00\uC744",d:"\uCD95\uC801(\uB0B4\uC2E4)",p:"\u2B50 \uCD94\uBD84: \uBC24\uB0AE \uAC19\uC740 \uB0A0"},
+  {s:"\uD83C\uDF3E \uB2A6\uAC00\uC744",d:"\uCD95\uC801(\uB0B4\uC2E4)",p:null},
+  {s:"\u2744\uFE0F \uCD08\uACA8\uC6B8",d:"\uCD95\uC801(\uBC29\uC5B4)",p:null},
+  {s:"\u26C4 \uD55C\uACA8\uC6B8",d:"\uCD95\uC801(\uBC29\uC5B4)",p:"\u2B50 \uB3D9\uC9C0: \uBC24\uC774 \uAC00\uC7A5 \uAE34 \uB0A0"},
+  {s:"\uD83C\uDF2B\uFE0F \uB2A6\uACA8\uC6B8",d:"\uCD95\uC801\u2192\uD655\uC0B0 \uC900\uBE44",p:null},
+  {s:"\uD83C\uDF31 \uCD08\uBD09",d:"\uD655\uC0B0(\uB4DC\uB7EC\uB0B4\uAE30)",p:null},
+  {s:"\uD83C\uDF38 \uC911\uBD09",d:"\uD655\uC0B0(\uB4DC\uB7EC\uB0B4\uAE30)",p:"\u2B50 \uCD98\uBD84: \uBC24\uB0AE \uAC19\uC740 \uB0A0"},
+];
+const SOC = [
+  {i:"\uD83C\uDF24",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uCD08\uC5EC\uB984",b:"\uACBD\uAE30\uAC00 \uD65C\uBC1C\uD574\uC9C0\uACE0, \uC0C8\uB85C\uC6B4 \uB3C4\uC804\uC5D0 \uC21C\uD48D\uC774 \uBD80\uB294 \uC2DC\uAE30\uC785\uB2C8\uB2E4.",w:null},
+  {i:"\u2600",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uD55C\uC5EC\uB984 \u2605",b:"\uC138\uC0C1 \uC804\uCCB4\uAC00 '\uBCF4\uC5EC\uC8FC\uACE0 \uB098\uB220\uB77C'\uB294 \uC5D0\uB108\uC9C0. \uBB34\uC5B8\uAC00\uB97C \uC138\uC0C1\uC5D0 \uBCF4\uC5EC\uC8FC\uAE30\uC5D0 \uAC00\uC7A5 \uC88B\uC740 \uD574.",w:"\u23F0 6/21~7/7 \uC8FC\uC758: \uC5EC\uB984\u2192\uAC00\uC744\uB85C \uBC14\uB00C\uB294 \uC804\uD658\uAE30. \uD070 \uACB0\uC815\uC740 7/7 \uC774\uD6C4\uB85C."},
+  {i:"\uD83C\uDF05",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uB2A6\uC5EC\uB984",b:"\uBDD4\uAC70\uC6E0\uB358 \uBD84\uC704\uAE30\uAC00 \uC2DD\uAE30 \uC2DC\uC791. \uC0C1\uBC18\uAE30 \uB9C8\uBB34\uB9AC, \uD558\uBC18\uAE30 \uC815\uB9AC.",w:null},
+  {i:"\uD83C\uDF42",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uCD08\uAC00\uC744",b:"\uC0AC\uD68C \uC804\uCCB4\uAC00 '\uC218\uD655\uD558\uACE0 \uC815\uB9AC\uD558\uC790'\uB294 \uBD84\uC704\uAE30.",w:null},
+  {i:"\uD83C\uDF41",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uC911\uAC00\uC744",b:"\uD638\uD669\uC5D0\uC11C \uBD88\uD669\uC73C\uB85C \uB118\uC5B4\uAC00\uB294 \uACBD\uACC4. \uBD84\uC704\uAE30\uAC00 \uD655 \uBC14\uB00C\uB294 \uC804\uD658\uC810.",w:"\u23F0 9\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0 \uAC00\uB2A5."},
+  {i:"\uD83C\uDF3E",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uB2A6\uAC00\uC744",b:"\uACBD\uAE30 \uD558\uB77D \uAC00\uC18D. \uD604\uAE08\uC744 \uB113\uB115\uD788 \uD655\uBCF4\uD574\uB450\uC138\uC694.",w:null},
+  {i:"\u2744",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uCD08\uACA8\uC6B8 \u26A0",b:"12\uB144 \uC8FC\uAE30 \uACBD\uAE30 \uCE68\uCCB4 \uC2DC\uC791.",w:"\u23F0 \uD604\uAE08 \uBE44\uC911\uC744 \uB192\uC774\uC138\uC694."},
+  {i:"\u26C4",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uD55C\uACA8\uC6B8 \u26A0\u26A0",b:"12\uB144\uB9C8\uB2E4 \uBC18\uBCF5\uB418\uB294 \uACBD\uC81C \uC704\uAE30 \uAD6C\uAC04. 1997 IMF, 2008 \uAE08\uC735\uC704\uAE30, 2020 \uCF54\uB85C\uB098\uAC00 \uBAA8\uB450 \uC774 \uC2DC\uAE30.",w:"\u23F0 12\uC6D4 \uD558\uC21C: \uC704\uAE30 \uC815\uC810\uC774\uC790 \uBC18\uB4F1 \uC2DC\uC791\uC810."},
+  {i:"\uD83C\uDF2B",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uB2A6\uACA8\uC6B8",b:"\uC544\uC9C1 \uCDA5\uC9C0\uB9CC \uBD09 \uAE30\uC6B4\uC774 \uC870\uAE08\uC529.",w:null},
+  {i:"\uD83C\uDF31",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uCD08\uBD09! \u2605",b:"\uACA8\uC6B8\uC774 \uB05D\uB098\uACE0 \uBD09\uC774 \uC635\uB2C8\uB2E4! 12\uB144 \uC8FC\uAE30 \uBC18\uB4F1 \uC2DC\uC791.",w:null},
+  {i:"\uD83C\uDF38",t:"\uC138\uC0C1\uC758 \uACC4\uC808: \uC911\uBD09",b:"\uC131\uC7A5\uC774 \uAC00\uC18D\uB418\uB294 \uBD09\uC758 \uC808\uC815.",w:"\u23F0 3\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0 \uAC00\uB2A5."},
 ];
 
-const SOCIAL = [
-  { icon: "🌤️", title: "세상의 계절: 초여름", body: "경기가 활발해지고, 새로운 도전에 순풍이 부는 시기입니다.", warn: null },
-  { icon: "☀️", title: "세상의 계절: 한여름 ★", body: "세상 전체가 '드러내고 나누라'는 에너지입니다. 1년 중 가장 밝고 뜨거운 시기처럼, 무언가를 세상에 보여주기에 가장 좋은 해입니다.", warn: "⏰ 6/21~7/7 주의: 여름→가을로 바뀌기 시작하는 전환기. 이직·큰 계약 등 중요한 결정은 7월 7일 이후로 미루는 게 안전합니다." },
-  { icon: "🌅", title: "세상의 계절: 늦여름", body: "뜨거웠던 분위기가 서서히 식기 시작합니다. 상반기에 마무리하고 하반기엔 차분히 정리하는 분위기.", warn: null },
-  { icon: "🍂", title: "세상의 계절: 초가을", body: "사회 전체가 '수확하고 정리하자'는 분위기. 벌어놓은 것을 챙기고, 새로운 투자는 신중해야 합니다.", warn: null },
-  { icon: "🍁", title: "세상의 계절: 중가을", body: "밤낮 길이가 같아지는 추분처럼, 사회 분위기가 확 바뀌는 전환점입니다. 호황에서 불황으로 넘어가는 경계.", warn: "⏰ 9월 하순 주의: 분위기가 급변할 수 있습니다." },
-  { icon: "🌾", title: "세상의 계절: 늦가을", body: "경기 하락이 빨라집니다. 현금을 넉넉히 확보해두는 것이 좋습니다.", warn: null },
-  { icon: "❄️", title: "세상의 계절: 초겨울 ⚠️", body: "경기 침체가 시작됩니다. 12년 주기로 반복되는 '겨울'의 입구.", warn: "⏰ 이 해부터 현금 비중을 높여야 합니다." },
-  { icon: "⛄", title: "세상의 계절: 한겨울 ⚠️⚠️", body: "12년마다 반복되는 경제 위기 구간. 1997 IMF, 2008 금융위기, 2020 코로나가 모두 이 시기였습니다. 가장 추운 밤이지만, 이 순간부터 다시 낮이 길어지기 시작합니다.", warn: "⏰ 12월 하순: 위기의 정점이자 반등의 시작. 바닥에서 기회를 잡는 안목이 필요합니다." },
-  { icon: "🌫️", title: "세상의 계절: 늦겨울", body: "아직 춥지만 봄 기운이 조금씩 느껴집니다. 좋은 자산이나 인재를 싸게 확보할 수 있는 시기.", warn: null },
-  { icon: "🌱", title: "세상의 계절: 초봄! ★", body: "겨울이 끝나고 봄이 옵니다! 12년 주기의 반등이 시작되어 새출발·확장에 사회적 순풍이 붑니다.", warn: null },
-  { icon: "🌸", title: "세상의 계절: 중봄", body: "성장이 가속되는 봄의 절정. 도전과 확장에 유리한 시기.", warn: "⏰ 3월 하순: 계절 전환점으로 분위기가 급변할 수 있습니다." },
-];
-
-const data = {
-  jt: {
-    name: "이정택", emoji: "⚔️", color: "#1e3a5f",
-    sub: "강철·도끼의 기질 | 겨울에 태어나 불이 필요한 사주",
-    trad: [3,2,4,0,-1,2,0,-3,1,3,2],
-    pai: [3,5,4,3,1,5,3,-1,2,4,4],
-    tradNotes: [
-      "재물운과 직장운이 함께 들어오는 좋은 해입니다. 안정적으로 돈이 들어오고, 사회적 인정도 따릅니다.",
-      "사회적 압박이 강하게 오는 해. 바쁘고 치열하지만 성과도 있습니다. 다만 여러 방향에서 요구가 몰려 에너지 소모가 큽니다. 겨울 사주에 불이 와서 따뜻해지는 면(좋음)과, 그 불이 너무 세서 부담되는 면(힘듦)이 공존합니다.",
-      "★ 10년 중 가장 좋은 해! '질서가 지식을 도와주는' 이상적인 조합. 방향을 잡고 자격이나 전문성을 확립하기에 최적.",
-      "기존에 잘 돌아가던 시스템에 브레이크가 걸리는 느낌. 새로운 방법이 필요하지만, 기존 방식을 고집하면 성과가 줄어듭니다. 변화를 받아들여야 하는 해.",
-      "큰 변동의 해. 직장·거처·관계에서 예상치 못한 변화가 올 수 있습니다. 인생의 큰 전환기와 겹쳐 이중으로 불안정. 무리한 도전보다 정리에 집중.",
-      "새로운 10년이 시작되는 해! 좋은 기운(따뜻한 불)이 10년간 함께하는 대운이 시작됩니다. 다만 첫 해는 적응기라 격변 속에서 방향을 잡아가는 시기.",
-      "같은 패턴이 반복되어 답답함을 느끼는 해. 큰 발전보다는 현상 유지. 에너지를 아끼고 내실을 다지세요.",
-      "⚠️ 10년 중 가장 어려운 해. 체력 소모·감정 기복·재물 유출에 주의. 사회적 경기 침체와 겹칩니다. 다만 대운의 보호가 있어 치명적이진 않습니다.",
-      "어려운 시기 이후의 회복기. 날카로웠던 마음이 안정을 되찾고, 차분히 실력을 쌓는 해.",
-      "재물 기회가 강하게 오는 해. 사주에 필요한 에너지가 세운으로 완성되어, 그동안 쌓은 것이 돈으로 바뀌기 시작합니다.",
-      "안정적인 재물운이지만, 주체성이 흐려질 수 있는 해. 남의 의견에 끌려가지 말고 자기 결정을 지키는 것이 중요합니다.",
-    ],
-    paiNotes: [
-      "🌍 세상이 활기차게 움직이는 초여름 에너지.\n\n⚔️ 강철이 불에 달궈지기 시작하는 시기 — 본격적인 단련의 준비 단계입니다.\n\n💡 할 일: 팀을 구성하고, 사업의 기초를 설계하세요. 아직 드러낼 때는 아니고, 뿌리를 내릴 때입니다.\n\n📌 적극적으로 사람을 만나고 네트워크를 구축하기 좋은 해입니다.",
-      "🌍 세상 전체가 '보여주고 나눠라'는 에너지! 1년 중 가장 밝은 시기.\n\n⚔️ 강철이 뜨거운 불을 만나 날카로운 도구로 단련되는 해! 옛말에 '불을 만나면 날카로워진다'고 했는데, 바로 올해입니다. 10년 중 최고의 기회!\n\n💡 할 일: 상반기에 제품 런칭·브랜딩·콘텐츠를 전면에 내세우세요. 하반기에는 내실과 기술 개발에 집중.\n\n⏰ 6/21~7/7 주의: 여름 정점 직후 전환기. 큰 결정은 7/7 이후로.\n\n📌 경쟁에 정면 승부하기 좋은 해. 미디어 노출에 유리합니다.",
-      "🌍 사회의 열기가 식기 시작.\n\n⚔️ 단련된 강철을 마무리로 다듬는 시기. 이 해가 인생의 전반부와 후반부를 가르는 분기점(만 39세)입니다.\n\n💡 할 일: '이 방향으로 간다!'는 큰 결단의 해. 사업 모델과 팀 구조를 확정하세요.\n\n📌 이제 드러내기보다 축적하기로 방향이 바뀝니다.",
-      "🌍 사회가 조정기에 들어섬.\n\n⚔️ 강철이 가을(자기 본래 계절)에 가까워지며 힘을 회복합니다. 기존 방식을 점검하고 새로운 학습법을 도입하세요.\n\n💡 할 일: 특허·IP 확보, 기술 개발 심화에 집중.\n\n📌 전문성을 깊이 쌓는 시간입니다.",
-      "🌍 사회 분위기가 확 바뀌는 전환점.\n\n⚔️ 강철의 날이 가장 날카로운 계절이지만, 인생의 큰 전환기와 겹쳐 힘이 분산됩니다.\n\n💡 할 일: 지금까지 이룬 것을 정리·수확. 다음 10년의 방향을 설계. 큰 변화는 자제.\n\n⏰ 9월 하순 전후: 분위기 급변 주의.",
-      "🌍 사회적으로는 하락기이지만, 개인적으로는 새로운 10년의 시작!\n\n⚔️ ★ 드디어 10년간 '태양(큰 불)'이 함께하는 시기가 시작됩니다! 겨울에 태어난 강철에 가장 필요했던 따뜻한 불이 10년간 곁에 있게 됩니다.\n\n💡 할 일: 사회가 어려울 때 오히려 준비하는 것이 전략. 대담한 비전을 세우세요.\n\n📌 이 해에 세운 방향이 향후 10년을 좌우합니다.",
-      "🌍 ⚠️ 12년 주기 경기 침체 시작.\n\n⚔️ 쉬고 있는 강철. 같은 패턴이 반복되어 답답하지만, 에너지를 모아두는 시기입니다.\n\n💡 할 일: 확장보다 내실! 2032년에 올 경기 한파에 대비해 반드시 현금을 넉넉히 확보하세요.\n\n📌 안전자산 비중을 높이고, 지출을 줄이세요.",
-      "🌍 ⚠️⚠️ 12년 주기 경제 바닥.\n\n⚔️ 가장 차가운 겨울. 체력·재물 소모 주의. 하지만 '밤이 가장 긴 날'은 곧 낮이 길어지기 시작하는 날이기도 합니다.\n\n💡 할 일: 방어가 최우선! 현금 확보. 바닥에서 좋은 자산·인재를 싸게 확보할 기회를 노리세요.\n\n📌 살아남는 것이 이기는 것입니다.",
-      "🌍 아직 춥지만 봄 기운이 슬슬 느껴집니다.\n\n⚔️ 에너지 축적 마무리. 봄을 향한 준비를 시작하세요.\n\n💡 할 일: 2032년 바닥에서 확보한 것들을 정리. 다음 봄의 청사진을 완성하세요.",
-      "🌍 ★ 봄이 왔습니다! 12년 주기 반등 시작!\n\n⚔️ ★ 겨울을 지나온 강철이 다시 쓰일 곳을 만남! 10년간 함께하는 태양 아래, 봄나무가 자라기 시작합니다.\n\n💡 할 일: 공격적 확장! 투자 집행, 새 사업 런칭, 시장 점유율 확대.\n\n📌 겨울에 축적한 힘을 봄에 터뜨리세요.",
-      "🌍 봄의 절정. 사회 성장이 가속됩니다.\n\n⚔️ 재물이 풍성한 계절.\n\n💡 할 일: 성장의 과실을 수확. 좋은 파트너와 협업하기 좋은 해.\n\n⏰ 3월 하순: 계절 전환점, 분위기 급변 가능.",
-    ],
-  },
-  jy: {
-    name: "이주연", emoji: "💎", color: "#6d28d9",
-    sub: "보석·바늘의 기질 | 가을에 태어나 이미 빛나고 있는 사주",
-    trad: [1,1,2,3,4,1,0,-3,1,2,-1],
-    pai: [3,4,3,3,4,3,3,-1,2,4,3],
-    tradNotes: [
-      "재물이 움직이지만 피로감이 있는 해. 같은 패턴이 반복되면서 지침을 느낄 수 있습니다.",
-      "직장·사회적 압박이 두 배로 오는 해. 바쁘고 인정은 받지만 체력·정신적 부담이 큽니다. 원래 균형이 좋은 사주에 불이 너무 많이 들어오는 느낌.",
-      "어려운 상황이 지식·학문을 통해 해결되는 해. 인생의 큰 전환기와 겹치지만 방향은 긍정적.",
-      "★ 새로운 10년 대운 시작! 자기 힘이 강해지고 안정감이 생기는 해. 전문성을 기반으로 커리어를 재설계하기 좋습니다.",
-      "★★ 10년 중 가장 좋은 해! 보석이 맑은 가을 하늘에서 가장 빛나는 순간. 자격 취득·승진·전문가 인정에 최적. 이 해의 성과가 향후 10년의 기반.",
-      "자기 에너지가 넘치지만, 너무 완벽을 추구하면 주변이 지칠 수 있습니다. 적절히 내려놓는 연습이 필요한 해.",
-      "같은 패턴이 반복되어 답답한 해. 큰 발전보다 현상 유지. 확장보다 내실.",
-      "⚠️ 10년 중 가장 어려운 해. 에너지가 과도하게 빠져나가 체력·감정 소모가 큽니다. 다만 원래 균형이 좋은 사주라 정택님보다는 버팁니다.",
-      "어려운 시기 이후 회복기. 안정감이 돌아오고, 차분히 다음을 준비하는 해.",
-      "안정적 재물 기회! 다만 대운 전환기와 겹쳐 직장·환경에 변동이 있을 수 있습니다.",
-      "새 대운 적응기. 여름의 더운 에너지가 보석에게 부담. 무리한 확장보다 안정적으로.",
-    ],
-    paiNotes: [
-      "🌍 세상이 활기차게 움직이는 초여름.\n\n💎 보석이 따뜻한 빛을 받아 빛나기 시작합니다.\n\n💡 할 일: 전문 분야에서 자신을 알리기 시작하세요. 자격증·포트폴리오 정리하기 좋은 해.\n\n📌 드러내기를 시작하는 해입니다.",
-      "🌍 세상 전체가 '보여주고 나눠라'는 에너지!\n\n💎 ★ 강렬한 태양빛 아래 보석이 눈부시게 빛나는 해! 다만 너무 강한 열은 보석을 상하게 할 수 있어, 쉬는 시간도 필요합니다.\n\n💡 할 일: 상반기에 전문성을 적극 노출! 강의·세미나·SNS 활동. 하반기에 내면 충전.\n\n⏰ 6/21~7/7 주의: 큰 결정은 이후로.\n\n📌 네트워킹·자신을 알리는 활동에 최적인 해.",
-      "🌍 사회의 열기가 식기 시작.\n\n💎 보석이 안정을 되찾는 시기. 인생의 큰 전환기와 겹쳐 내면에서 변화가 일어납니다.\n\n💡 할 일: 새로운 방향을 설계하세요.\n\n📌 확산에서 축적으로 방향이 바뀌는 해.",
-      "🌍 사회가 조정기에 들어감.\n\n💎 ★ 보석이 가을(자기 본래 계절)에 가까워지며 빛이 살아납니다! 10년간 좋은 에너지가 함께하는 새 대운이 시작됩니다.\n\n💡 할 일: 전문성을 기반으로 커리어를 새로 설계하기 딱 좋은 시기.\n\n📌 내실을 다지면서 전문성을 키우세요.",
-      "🌍 사회 분위기 전환점.\n\n💎 ★★ 맑은 가을 하늘에서 보석이 가장 빛나는 순간! '혼자 가을을 즐긴다'는 옛말이 딱 맞는 해. 10년 중 자기 능력이 최고조!\n\n💡 할 일: 자격 취득, 승진, 전문가로서 인정받기에 최적. 이 해의 성과가 다음 10년의 기반이 됩니다.\n\n⏰ 9월 하순: 분위기 급변 가능.\n\n📌 전문성의 정점. 놓치지 마세요!",
-      "🌍 사회 하락기 시작.\n\n💎 자기 에너지가 넘치지만, 너무 완벽주의에 빠지지 않도록 주의.\n\n💡 할 일: 적절히 내려놓는 연습. 사회 하락기에 맞춰 방어 준비 시작.\n\n📌 내실 다지기 + 현금 확보 시작.",
-      "🌍 ⚠️ 12년 주기 경기 침체 시작.\n\n💎 같은 패턴이 반복되어 답답하지만, '익숙한 것의 심화'라고 생각하세요.\n\n💡 할 일: 2032년 한파에 대비해 현금을 넉넉히 확보하세요.\n\n📌 확장보다 내실. 전문성 심화.",
-      "🌍 ⚠️⚠️ 12년 주기 경제 바닥.\n\n💎 차가운 물에 잠기는 보석. 에너지 소모가 크지만, 원래 균형이 좋은 사주라 견딜 수 있습니다.\n\n💡 할 일: 방어가 최우선! 전문성이라는 무기가 이 겨울을 견디게 해줍니다.\n\n📌 살아남으면 다음 봄이 반드시 옵니다.",
-      "🌍 아직 춥지만 봄 기운이 슬슬.\n\n💎 안정감이 돌아옵니다.\n\n💡 할 일: 2032년 위기에서 배운 것을 정리하고, 봄 준비를 시작하세요.",
-      "🌍 ★ 봄이 왔습니다! 12년 주기 반등!\n\n💎 봄 흙 속에서 보석이 드러나기 시작합니다. 다만 대운 전환기와 겹쳐 변화도 함께 옵니다.\n\n💡 할 일: 봄의 순풍을 타되, 무리하지 않으면서 성장하세요.\n\n📌 변화 속의 기회. 재물 기회를 잡되 보수적으로.",
-      "🌍 봄의 절정. 사회 성장 가속.\n\n💎 봄은 나무의 계절이고, 보석에게 나무는 '재물'입니다.\n\n💡 할 일: 안정적 기반 위에서 점진적 성장. 새 대운 적응기라 무리한 확장은 자제.\n\n⏰ 3월 하순: 분위기 급변 가능.",
-    ],
-  },
+const D = {
+jt: {
+  name:"\uC774\uC815\uD0DD",emoji:"\u2694\uFE0F",color:"#1e3a5f",
+  sub:"\uAC15\uCCA0\xB7\uB3C4\uB07C\uC758 \uAE30\uC9C8 | \uACA8\uC6B8\uC5D0 \uD0DC\uC5B4\uB098 \uBD88\uC774 \uAC04\uC808\uD55C \uC0AC\uC8FC",
+  trad:[3,2,4,0,-1,2,0,-3,1,3,2],
+  pai:[3,5,4,3,1,5,3,-1,2,4,4],
+  tn:[
+    "\uC7AC\uBB3C\uC6B4\uACFC \uC9C1\uC7A5\uC6B4\uC774 \uD568\uAED8 \uB4E4\uC5B4\uC635\uB2C8\uB2E4. \uC0AC\uC5C5\uC758 \uAE30\uCD08\uB97C \uB2E4\uC9C0\uACE0, \uC548\uC815\uC801\uC73C\uB85C \uAD6C\uC870\uB97C \uC138\uC6B0\uAE30 \uC88B\uC740 \uD574\uC785\uB2C8\uB2E4.",
+    "\uAC15\uD55C \uC555\uBC15\uACFC \uAE30\uD68C\uAC00 \uB3D9\uC2DC\uC5D0 \uC624\uB294 \uD574. \uACBD\uAE08(\uAC15\uCCA0)\uC740 \uBD88\uC744 \uB9CC\uB098\uBA74 \uB0A0\uCE74\uB85C\uC6CC\uC9C0\uB294 \uAE08\uC18D\uC774\uB77C, \uBCD1\uD654(\uD0DC\uC591)\uC774 \uC624\uBA74 \uB2E8\uB828\uC774 \uB429\uB2C8\uB2E4. \uB2E4\uB9CC \uC6D0\uAD6D\uC5D0 \uC774\uBBF8 \uC815\uD654(\uCD1B\uBD88)\uAC00 \uC788\uC5B4 \uBCD1\uD654\uAE4C\uC9C0 \uC624\uBA74 '\uBD88\uC774 \uB450 \uAC1C'\uAC00 \uB418\uC5B4 \uD63C\uB780\uC2A4\uB7EC\uC6B8 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uBC14\uC058\uACE0 \uCE58\uC5F4\uD558\uC9C0\uB9CC \uC131\uACFC\uB3C4 \uD070 \uD574.",
+    "\u2605 10\uB144 \uC911 \uAC00\uC7A5 \uC88B\uC740 \uD574! \uC6D0\uAD6D\uC758 \uC815\uD654(\uCD1B\uBD88)\uC640 \uAC19\uC740 \uAE00\uC790\uAC00 \uC138\uC6B4\uC73C\uB85C \uC640\uC11C, \uACBD\uAE08\uC744 \uC815\uBC00\uD558\uAC8C \uAC08\uACE0\uB2E6\uB294 '\uB2E8\uB828\uC758 \uBD88'\uC774 \uC644\uBCBD\uD558\uAC8C \uC791\uB3D9\uD569\uB2C8\uB2E4. \uC0AC\uC5C5 \uBC29\uD5A5\uC744 \uD655\uC815\uD558\uACE0 \uC804\uBB38\uC131\uC744 \uC138\uC6B0\uAE30\uC5D0 \uCD5C\uC801.",
+    "\uAE30\uC874\uC5D0 \uC798 \uB3CC\uC544\uAC00\uB358 \uC2DC\uC2A4\uD15C\uC5D0 \uBE0C\uB808\uC774\uD06C\uAC00 \uAC78\uB9AC\uB294 \uB290\uB08C. \uC2DD\uC2E0\uACA9(\uC0DD\uC0B0\uC790 \uAE30\uC9C8)\uC5D0 \uD3B8\uC778(\uBCC0\uCE59\uC758 \uC5D0\uB108\uC9C0)\uC774 \uC640\uC11C 'AI \uC0AC\uC8FC \uC571'\uCC98\uB7FC \uAE30\uC874\uC5D0 \uC5C6\uB294 \uC0C8\uB85C\uC6B4 \uBC29\uC2DD\uC73C\uB85C \uC804\uD658\uD574\uC57C \uD558\uB294 \uC2DC\uAE30.",
+    "\uD070 \uBCC0\uB3D9\uC758 \uD574. \uB300\uC6B4\uC774 \uBC14\uB00C\uB294 \uC804\uD658\uAE30\uC640 \uACA8\uC6B8~\uBD09 \uC5D0\uB108\uC9C0\uC758 \uCDA9\uB3CC\uC774 \uACA9\uCE58\uBA74\uC11C, \uC9C1\uC7A5\xB7\uAC70\uCC98\xB7\uAD00\uACC4\uC5D0\uC11C \uC608\uC0C1\uCE58 \uBABB\uD55C \uBCC0\uD654\uAC00 \uC62C \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uBB34\uB9AC\uD55C \uB3C4\uC804\uBCF4\uB2E4 \uC815\uB9AC\uC5D0 \uC9D1\uC911.",
+    "\uC0C8\uB85C\uC6B4 10\uB144\uC774 \uC2DC\uC791\uB418\uB294 \uD574! 10\uB144\uAC04 '\uD0DC\uC591(\uD070 \uBD88)'\uC774 \uD568\uAED8\uD558\uB294 \uB300\uC6B4 \uC2DC\uC791. \uACA8\uC6B8\uC5D0 \uD0DC\uC5B4\uB09C \uAC15\uCCA0\uC5D0\uAC8C \uAC00\uC7A5 \uD544\uC694\uD588\uB358 \uB530\uB73B\uD55C \uBD88\uC774 \uB4DC\uB514\uC5B4 \uC635\uB2C8\uB2E4. \uCCAB \uD574\uB294 \uC801\uC751\uAE30.",
+    "\uAC19\uC740 \uD328\uD134\uC774 \uBC18\uBCF5\uB418\uC5B4 \uB2F5\uB2F5\uD568\uC744 \uB290\uB07C\uB294 \uD574. \uC0DD\uC0B0\uC131\uC774 \uC788\uC9C0\uB9CC \uACBD\uC7C1\uC790\uC640 \uBD84\uC0B0\uB418\uC5B4 \uC131\uACFC\uAC00 \uD76C\uC11D\uB429\uB2C8\uB2E4. \uD655\uC7A5\uBCF4\uB2E4 \uB0B4\uC2E4\uC744 \uB2E4\uC9C0\uC138\uC694.",
+    "\u26A0\uFE0F 10\uB144 \uC911 \uAC00\uC7A5 \uC5B4\uB824\uC6B4 \uD574. \uC6D0\uB798 \uCD94\uC6B4 \uC0AC\uC8FC(\uACA8\uC6B8 \uACBD\uAE08)\uC5D0 \uACBD\uC81C \uD55C\uD30C\uAE4C\uC9C0 \uACA9\uCE58\uBA74\uC11C \uD0C0\uACA9\uC774 \uD07D\uB2C8\uB2E4. \uB300\uC6B4\uC758 \uD0DC\uC591(\uBCD1\uD654)\uC774 \uC788\uC9C0\uB9CC \uC138\uC6B4\uC758 \uD070 \uBB3C(壬\uC218)\uC774 \uADF8 \uBD88\uC744 \uAEBC\uBC84\uB824 \uBCF4\uD638\uB9C9\uC774 \uC57D\uD574\uC9D1\uB2C8\uB2E4.",
+    "\uD3ED\uD48D\uC6B0 \uC774\uD6C4 \uD68C\uBCF5\uAE30. \uB0A0\uCE74\uB85C\uC6E0\uB358 \uB9C8\uC74C\uC774 \uC548\uC815\uC744 \uB418\uCC3E\uACE0, \uCC28\uBD84\uD788 \uAE30\uCD08\uCCB4\uB825\uC744 \uC313\uB294 \uD574.",
+    "\uC7AC\uBB3C \uAE30\uD68C\uAC00 \uAC15\uD558\uAC8C \uC624\uB294 \uD574! \uACBD\uAE08(\uB3C4\uB07C)\uC774 \uAC11\uBAA9(\uD070 \uB098\uBB34)\uC744 \uB9CC\uB098\uBA74 \uC4F8\uBAA8\uAC00 \uC0DD\uAE41\uB2C8\uB2E4 \u2014 \uC989, \uB3C4\uB07C\uAC00 \uBCA8 \uB098\uBB34\uAC00 \uC0DD\uAE34 \uAC83\uC785\uB2C8\uB2E4. \uADF8\uB3D9\uC548 \uC313\uC740 \uC2E4\uB825\uC774 \uB3C8\uC73C\uB85C \uBC14\uB00C\uAE30 \uC2DC\uC791\uD569\uB2C8\uB2E4.",
+    "\uC548\uC815\uC801\uC778 \uC7AC\uBB3C\uC6B4. \uB2E4\uB9CC \uB3C4\uB07C(\uACBD\uAE08)\uAC00 \uB369\uAD74(\uC744\uBAA9)\uC5D0 \uAC10\uACA8 \uC8FC\uCCB4\uC131\uC774 \uD750\uB824\uC9C8 \uC218 \uC788\uC5B4\uC694. \uD611\uC5C5\uC740 \uC88B\uC9C0\uB9CC \uC790\uAE30 \uACB0\uC815\uC744 \uC9C0\uD0A4\uB294 \uAC83\uC774 \uC911\uC694\uD569\uB2C8\uB2E4.",
+  ],
+  pn:[
+    "\uD83C\uDF0D \uC138\uC0C1\uC774 \uD65C\uAE30\uCC28\uAC8C \uC6C0\uC9C1\uC774\uB294 \uCD08\uC5EC\uB984.\n\n\u2694\uFE0F \uAC15\uCCA0\uC774 \uBD88\uC5D0 \uB2EC\uAD88\uC9C0\uAE30 \uC2DC\uC791\uD558\uB294 \uC2DC\uAE30 \u2014 \uBCF8\uACA9\uC801\uC778 \uB2E8\uB828\uC758 \uC900\uBE44.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uD300\uC744 \uAD6C\uC131\uD558\uACE0, \uC0AC\uC5C5\uC758 \uAE30\uCD08\uB97C \uC124\uACC4\uD558\uC138\uC694. \uC544\uC9C1 \uB4DC\uB7EC\uB0BC \uB54C\uB294 \uC544\uB2C8\uACE0, \uBFCC\uB9AC\uB97C \uB0B4\uB9B4 \uB54C.\n\n\uD83D\uDCCC \uC0AC\uB78C\uC744 \uB9CC\uB098\uACE0 \uB124\uD2B8\uC6CC\uD06C\uB97C \uAD6C\uCD95\uD558\uAE30 \uC88B\uC740 \uD574.",
+    "\uD83C\uDF0D \uC138\uC0C1 \uC804\uCCB4\uAC00 '\uBCF4\uC5EC\uC8FC\uACE0 \uB098\uB220\uB77C'\uB294 \uC5D0\uB108\uC9C0!\n\n\u2694\uFE0F \u2605 \uAC15\uCCA0\uC774 \uB728\uAC70\uC6B4 \uBD88\uC744 \uB9CC\uB098 \uB0A0\uCE74\uB85C\uC6B4 \uB3C4\uAD6C\uB85C \uB2E8\uB828\uB418\uB294 \uD574! \uC637\uB9D0\uC5D0 '\uBD88\uC744 \uB9CC\uB098\uBA74 \uB0A0\uCE74\uB85C\uC6CC\uC9C4\uB2E4'\uACE0 \uD588\uB294\uB370, \uBC14\uB85C \uC62C\uD574. \uACA8\uC6B8 \uAC15\uCCA0\uC5D0\uAC8C \uAC00\uC7A5 \uBD80\uC871\uD588\uB358 \uBD88\uC774 \uD655 \uCF1C\uC9C0\uB294 10\uB144 \uC911 \uCD5C\uACE0\uC758 \uAE30\uD68C!\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC0C1\uBC18\uAE30\uC5D0 \uC81C\uD488 \uB7F0\uCE6D\xB7\uBE0C\uB79C\uB529\xB7\uCF58\uD150\uCE20\uB97C \uC804\uBA74\uC5D0. \uD558\uBC18\uAE30\uC5D0\uB294 \uB0B4\uC2E4\uACFC \uAE30\uC220 \uAC1C\uBC1C\uC5D0 \uC9D1\uC911.\n\n\u23F0 6/21~7/7: \uC5EC\uB984 \uC815\uC810 \uC9C1\uD6C4 \uC804\uD658\uAE30. \uD070 \uACB0\uC815\uC740 7/7 \uC774\uD6C4\uB85C.\n\n\uD83D\uDCCC \uACBD\uC7C1\uC5D0 \uC815\uBA74 \uC2B9\uBD80\uD558\uAE30 \uC88B\uC740 \uD574. \uBBF8\uB514\uC5B4 \uB178\uCD9C\uC5D0 \uC720\uB9AC.",
+    "\uD83C\uDF0D \uC0AC\uD68C\uC758 \uC5F4\uAE30\uAC00 \uC2DD\uAE30 \uC2DC\uC791.\n\n\u2694\uFE0F \uB2E8\uB828\uB41C \uAC15\uCCA0\uC744 \uB9C8\uBB34\uB9AC\uB85C \uB2E4\uB4EC\uB294 \uC2DC\uAE30. \uC774 \uD574\uAC00 \uC778\uC0DD\uC758 \uC804\uBC18\uBD80\uC640 \uD6C4\uBC18\uBD80\uB97C \uAC00\uB974\uB294 \uBD84\uAE30\uC810(\uB9CC 39\uC138).\n\n\uD83D\uDCA1 \uD560 \uC77C: '\uC774 \uBC29\uD5A5\uC73C\uB85C \uAC04\uB2E4!'\uB294 \uD070 \uACB0\uB2E8\uC758 \uD574. \uC0AC\uC5C5 \uBAA8\uB378\uACFC \uD300 \uAD6C\uC870\uB97C \uD655\uC815\uD558\uC138\uC694.\n\n\uD83D\uDCCC \uC774\uC81C \uB4DC\uB7EC\uB0B4\uAE30\uBCF4\uB2E4 \uCD95\uC801\uD558\uAE30\uB85C \uBC29\uD5A5 \uC804\uD658.",
+    "\uD83C\uDF0D \uC0AC\uD68C\uAC00 \uC870\uC815\uAE30.\n\n\u2694\uFE0F \uAC15\uCCA0\uC774 \uAC00\uC744(\uC790\uAE30 \uBCF8\uB798 \uACC4\uC808)\uC5D0 \uAC00\uAE4C\uC6CC\uC9C0\uBA70 \uD798\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4. \uAE30\uC874 \uBC29\uC2DD\uC744 \uC810\uAC80\uD558\uACE0 \uC0C8\uB85C\uC6B4 \uD559\uC2B5\uBC95\uC744 \uB3C4\uC785\uD558\uC138\uC694.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uD2B9\uD5C8\xB7IP \uD655\uBCF4, \uAE30\uC220 \uAC1C\uBC1C \uC2EC\uD654.\n\n\uD83D\uDCCC \uC804\uBB38\uC131\uC744 \uAE4A\uC774 \uC313\uB294 \uC2DC\uAC04.",
+    "\uD83C\uDF0D \uC0AC\uD68C \uBD84\uC704\uAE30 \uC804\uD658\uC810.\n\n\u2694\uFE0F \uAC15\uCCA0\uC758 \uB0A0\uC774 \uAC00\uC7A5 \uB0A0\uCE74\uB85C\uC6B4 \uACC4\uC808\uC774\uC9C0\uB9CC, \uC778\uC0DD\uC758 \uD070 \uC804\uD658\uAE30\uC640 \uACA9\uCE58\uBA74\uC11C \uD798\uC774 \uBD84\uC0B0\uB429\uB2C8\uB2E4.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC9C0\uAE08\uAE4C\uC9C0 \uC774\uB8E8\uAC83\uC744 \uC815\uB9AC\xB7\uC218\uD655. \uB2E4\uC74C 10\uB144\uC758 \uBC29\uD5A5\uC744 \uC124\uACC4. \uD070 \uBCC0\uD654\uB294 \uC790\uC81C.\n\n\u23F0 9\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0 \uC8FC\uC758.",
+    "\uD83C\uDF0D \uC0AC\uD68C\uC801\uC73C\uB85C\uB294 \uD558\uB77D\uAE30\uC774\uC9C0\uB9CC, \uAC1C\uC778\uC801\uC73C\uB85C\uB294 \uC0C8\uB85C\uC6B4 10\uB144\uC758 \uC2DC\uC791!\n\n\u2694\uFE0F \u2605 \uB4DC\uB514\uC5B4 10\uB144\uAC04 '\uD0DC\uC591(\uD070 \uBD88)'\uC774 \uD568\uAED8\uD558\uB294 \uC2DC\uAE30\uAC00 \uC2DC\uC791! \uACA8\uC6B8\uC5D0 \uD0DC\uC5B4\uB09C \uAC15\uCCA0\uC5D0\uAC8C \uAC00\uC7A5 \uD544\uC694\uD588\uB358 \uBD88\uC774 10\uB144\uAC04 \uACE1\uC5D0.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC0AC\uD68C\uAC00 \uC5B4\uB824\uC6B8 \uB54C \uC624\uD788\uB824 \uC900\uBE44\uD558\uB294 \uAC83\uC774 \uC804\uB7B5. \uB300\uB2F4\uD55C \uBE44\uC804\uC744 \uC138\uC6B0\uC138\uC694.\n\n\uD83D\uDCCC \uC774 \uD574\uC5D0 \uC138\uC6B4 \uBC29\uD5A5\uC774 \uD5A5\uD6C4 10\uB144\uC744 \uC88C\uC6B0\uD569\uB2C8\uB2E4.",
+    "\uD83C\uDF0D \u26A0 12\uB144 \uC8FC\uAE30 \uACBD\uAE30 \uCE68\uCCB4 \uC2DC\uC791.\n\n\u2694\uFE0F \uC26C\uACE0 \uC788\uB294 \uAC15\uCCA0. \uAC19\uC740 \uD328\uD134\uC774 \uBC18\uBCF5\uB418\uC5B4 \uB2F5\uB2F5\uD558\uC9C0\uB9CC, \uC5D0\uB108\uC9C0\uB97C \uBAA8\uC544\uB450\uB294 \uC2DC\uAE30.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uD655\uC7A5\uBCF4\uB2E4 \uB0B4\uC2E4! 2032\uB144 \uACBD\uAE30 \uD55C\uD30C\uC5D0 \uB300\uBE44\uD574 \uD604\uAE08\uC744 \uBC18\uB4DC\uC2DC \uD655\uBCF4\uD558\uC138\uC694.\n\n\uD83D\uDCCC \uC548\uC804\uC790\uC0B0 \uBE44\uC911 \uB192\uC774\uACE0, \uC9C0\uCD9C\uC744 \uC904\uC774\uC138\uC694.",
+    "\uD83C\uDF0D \u26A0\u26A0 12\uB144 \uC8FC\uAE30 \uACBD\uC81C \uBC14\uB2E5.\n\n\u2694\uFE0F \uAC00\uC7A5 \uCC28\uAC00\uC6B4 \uACA8\uC6B8. \uC6D0\uB798 \uCD94\uC6B4 \uC0AC\uC8FC(\uACA8\uC6B8 \uACBD\uAE08)\uC5D0 \uACBD\uC81C \uD55C\uD30C\uAE4C\uC9C0 \u2014 \uC774\uC911 \uD0C0\uACA9. \uB300\uC6B4\uC758 \uD0DC\uC591\uC774 \uC788\uC9C0\uB9CC \uC138\uC6B4\uC758 \uD070 \uBB3C\uC774 \uADF8 \uBD88\uC744 \uAEBC\uBC84\uB9BD\uB2C8\uB2E4. \uD558\uC9C0\uB9CC '\uBC24\uC774 \uAC00\uC7A5 \uAE34 \uB0A0'\uC740 \uACE7 \uB0AE\uC774 \uAE38\uC5B4\uC9C0\uAE30 \uC2DC\uC791\uD558\uB294 \uB0A0.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uBC29\uC5B4\uAC00 \uCD5C\uC6B0\uC120! \uD604\uAE08 \uD655\uBCF4. \uBC14\uB2E5\uC5D0\uC11C \uC88B\uC740 \uC790\uC0B0\xB7\uC778\uC7AC\uB97C \uC2F8\uAC8C \uD655\uBCF4\uD560 \uAE30\uD68C.\n\n\uD83D\uDCCC \uC0B4\uC544\uB0A8\uB294 \uAC83\uC774 \uC774\uAE30\uB294 \uAC83.",
+    "\uD83C\uDF0D \uC544\uC9C1 \uCDA5\uC9C0\uB9CC \uBD09 \uAE30\uC6B4\uC774 \uC2AC\uC2AC.\n\n\u2694\uFE0F \uC5D0\uB108\uC9C0 \uCD95\uC801 \uB9C8\uBB34\uB9AC. \uBD09\uC744 \uD5A5\uD55C \uC900\uBE44\uB97C \uC2DC\uC791.\n\n\uD83D\uDCA1 \uD560 \uC77C: 2032\uB144 \uBC14\uB2E5\uC5D0\uC11C \uD655\uBCF4\uD55C \uAC83\uB4E4\uC744 \uC815\uB9AC. \uB2E4\uC74C \uBD09\uC758 \uCCAD\uC0AC\uC9C4\uC744 \uC644\uC131\uD558\uC138\uC694.",
+    "\uD83C\uDF0D \u2605 \uBD09\uC774 \uC654\uC2B5\uB2C8\uB2E4! 12\uB144 \uC8FC\uAE30 \uBC18\uB4F1!\n\n\u2694\uFE0F \u2605 \uACA8\uC6B8\uC744 \uC9C0\uB098\uC628 \uAC15\uCCA0\uC774 \uB2E4\uC2DC \uC4F8 \uACF3\uC744 \uB9CC\uB0A8! \uB3C4\uB07C(\uACBD\uAE08)\uAC00 \uD070 \uB098\uBB34(\uAC11\uBAA9)\uB97C \uB9CC\uB098\uBA74 \uC4F8\uBAA8\uAC00 \uC0DD\uAE41\uB2C8\uB2E4. 10\uB144\uAC04 \uD568\uAED8\uD558\uB294 \uD0DC\uC591 \uC544\uB798, \uBD09\uB098\uBB34\uAC00 \uC790\uB77C\uAE30 \uC2DC\uC791!\n\n\uD83D\uDCA1 \uD560 \uC77C: \uACF5\uACA9\uC801 \uD655\uC7A5! \uD22C\uC790 \uC9D1\uD589, \uC0C8 \uC0AC\uC5C5 \uB7F0\uCE6D, \uC2DC\uC7A5 \uC810\uC720\uC728 \uD655\uB300.\n\n\uD83D\uDCCC \uACA8\uC6B8\uC5D0 \uCD95\uC801\uD55C \uD798\uC744 \uBD09\uC5D0 \uD130\uB728\uB9AC\uC138\uC694.",
+    "\uD83C\uDF0D \uBD09\uC758 \uC808\uC815. \uC0AC\uD68C \uC131\uC7A5 \uAC00\uC18D.\n\n\u2694\uFE0F \uC7AC\uBB3C\uC774 \uD48D\uC131\uD55C \uACC4\uC808. \uB2E4\uB9CC \uB3C4\uB07C\uAC00 \uB369\uAD74\uC5D0 \uAC10\uACA8 \uC790\uC728\uC774 \uC904 \uC218 \uC788\uC5B4\uC694.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC131\uC7A5\uC758 \uACFC\uC2E4\uC744 \uC218\uD655. \uC88B\uC740 \uD30C\uD2B8\uB108\uC640 \uD611\uC5C5\uD558\uB418, \uC790\uAE30 \uACB0\uC815\uC744 \uC9C0\uD0A4\uC138\uC694.\n\n\u23F0 3\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0 \uAC00\uB2A5.",
+  ],
+},
+jy: {
+  name:"\uC774\uC8FC\uC5F0",emoji:"\uD83D\uDC8E",color:"#6d28d9",
+  sub:"\uBCF4\uC11D\xB7\uBC14\uB298\uC758 \uAE30\uC9C8 | \uAC00\uC744\uC5D0 \uD0DC\uC5B4\uB098 \uC774\uBBF8 \uBE5B\uB098\uACE0 \uC788\uB294 \uC0AC\uC8FC",
+  trad:[1,1,2,3,4,1,0,-3,1,2,-1],
+  pai:[3,4,3,3,4,3,3,-1,2,4,3],
+  tn:[
+    "\uC7AC\uBB3C\uC774 \uC6C0\uC9C1\uC774\uC9C0\uB9CC \uD53C\uB85C\uAC10\uC774 \uC788\uB294 \uD574. \uAC19\uC740 \uD328\uD134\uC774 \uBC18\uBCF5\uB418\uBA74\uC11C \uC9C0\uCE68\uC744 \uB290\uB084 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uBCF4\uC11D\uC740 \uC801\uB2F9\uD55C \uC628\uAE30\uC5D0 \uBE5B\uB098\uC9C0\uB9CC, \uBD88(\u5DF3\u706B)\uAC00 \uC6D0\uAD6D\uACFC \uB610 \uACA9\uCE58\uB294 \uAD6C\uC870\uB77C \uC0C8\uB85C\uC6C0\uBCF4\uB2E4\uB294 \uBC18\uBCF5.",
+    "\uC9C1\uC7A5\xB7\uC0AC\uD68C\uC801 \uC555\uBC15\uC774 \uB450 \uBC30\uB85C \uC624\uB294 \uD574. \uBCF4\uC11D(\uC2E0\uAE08)\uC740 \uAC15\uCCA0(\uACBD\uAE08)\uACFC \uB2EC\uB9AC \uBD88\uC5D0 \uC57D\uD569\uB2C8\uB2E4 \u2014 \uAC15\uCCA0\uC740 \uBD88\uC5D0 \uB2E8\uB828\uB418\uC9C0\uB9CC, \uBCF4\uC11D\uC740 \uBD88\uC5D0 \uB179\uC744 \uC218 \uC788\uC5B4\uC694. \uC774\uBBF8 \uADE0\uD615 \uC7A1\uD78C \uC0AC\uC8FC\uC5D0 \uBD88\uC774 \uB610 \uC624\uBA74 \uACFC\uC798. \uBC14\uC058\uACE0 \uC778\uC815\uC740 \uBC1B\uC9C0\uB9CC \uCCB4\uB825\xB7\uC815\uC2E0\uC801 \uBD80\uB2F4\uC774 \uD07D\uB2C8\uB2E4.",
+    "\uC5B4\uB824\uC6B4 \uC0C1\uD669\uC774 \uC9C0\uC2DD\xB7\uD559\uBB38\uC744 \uD1B5\uD574 \uD574\uACB0\uB418\uB294 \uD574. \uBCF4\uC11D\uC744 \uBCF4\uD638\uD558\uB294 \uC778\uC131(\uD559\uBB38)\uC758 \uD798\uC774 \uC791\uB3D9. \uB300\uC6B4 \uC804\uD658\uAE30\uC640 \uACA8\uCE58\uC9C0\uB9CC \uBC29\uD5A5\uC740 \uAE0D\uC815\uC801.",
+    "\u2605 \uC0C8\uB85C\uC6B4 10\uB144 \uB300\uC6B4 \uC2DC\uC791! \uC2E0\uAE08(\uBCF4\uC11D)\uC774 \uAC00\uC744(\uC2E0\uB300\uC6B4)\uC73C\uB85C \uC810\uC810 \uB4E4\uC5B4\uAC00\uBA74\uC11C \uBCF4\uC11D\uC774 \uBE5B\uB098\uAE30 \uC88B\uC740 \uD658\uACBD\uC774 \uC870\uC131\uB429\uB2C8\uB2E4. \uC870\uD6C4\uC6A9\uC2E0 \uC784\uC218(\u58EC\u6C34)\uAC00 \uB300\uC6B4\uC73C\uB85C \uC640\uC11C 10\uB144\uAC04 \uBCF4\uC11D\uC744 \uC52C\uC5B4\uC8FC\uB294 \uBB3C\uC774 \uD568\uAED8. \uC804\uBB38\uC131\uC744 \uAE30\uBC18\uC73C\uB85C \uCEE4\uB9AC\uC5B4 \uC7AC\uC124\uACC4\uC5D0 \uCD5C\uC801.",
+    "\u2605\u2605 10\uB144 \uC911 \uAC00\uC7A5 \uC88B\uC740 \uD574! \uBCF4\uC11D\uC774 \uB9D1\uC740 \uAC00\uC744 \uD558\uB298\uC5D0\uC11C \uAC00\uC7A5 \uBE5B\uB098\uB294 \uC21C\uAC04. \uC720\uAE08(\u9149\u91D1)\uC740 \uC2E0\uAE08\uC758 '\uC81C\uC655\uC9C0' \u2014 \uC790\uAE30 \uD798\uC774 \uCD5C\uAC15\uC778 \uD574. \uC790\uACA9 \uCDE8\uB4DD\xB7\uC2B9\uC9C4\xB7\uC804\uBB38\uAC00 \uC778\uC815\uC5D0 \uCD5C\uC801. \uC774 \uD574\uC758 \uC131\uACFC\uAC00 \uD5A5\uD6C4 10\uB144\uC758 \uAE30\uBC18.",
+    "\uC790\uAE30 \uC5D0\uB108\uC9C0\uAC00 \uB118\uCE58\uC9C0\uB9CC, \uB108\uBB34 \uC644\uBCBD\uC744 \uCD94\uAD6C\uD558\uBA74 \uC8FC\uBCC0\uC774 \uC9C0\uCE60 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uACBD\uAE08(\uACBD\uC7C1\uC790)\uC774 \uC640\uC11C \uC6D0\uAD6D\uC758 \uAC11\uBAA9(\uC870\uD6C4\uC6A9\uC2E0)\uC744 \uAE4C\uBC84\uB9AC\uB294 \uAD6C\uC870\uB77C \uADE0\uD615\uC5D0 \uBBF8\uC138\uD55C \uADE0\uC5F4\uC774 \uC0DD\uAE41\uB2C8\uB2E4.",
+    "\uAC19\uC740 \uD328\uD134 \uBC18\uBCF5(\uC6D0\uAD6D \uC77C\uC8FC \uC2E0\uD574\uC640 \uB611\uAC19\uC740 \uAE00\uC790). \uBCF4\uC11D\uC774 \uBB3C\uC5D0 \uC7A0\uACA8 \uBE5B\uC744 \uBC1C\uD558\uAE30 \uC5B4\uB824\uC6B4 \uC2DC\uAE30. \uD070 \uBC1C\uC804\uBCF4\uB2E4 \uD604\uC0C1 \uC720\uC9C0. \uC804\uBB38\uC131\uC744 \uAE4A\uC774 \uD30C\uB294 \uB370 \uC9D1\uC911.",
+    "\u26A0\uFE0F 10\uB144 \uC911 \uAC00\uC7A5 \uC5B4\uB824\uC6B4 \uD574. \uBB3C\uC774 \uB108\uBB34 \uB9CE\uC544\uC838\uC11C \uBCF4\uC11D\uC774 \uBB3C\uC5D0 \uC7A0\uAE41\uB2C8\uB2E4. \uCCB4\uB825\xB7\uAC10\uC815 \uC18C\uBAA8\uAC00 \uD07D\uB2C8\uB2E4. \uB2E4\uB9CC \uC6D0\uB798 \uADE0\uD615\uC774 \uC88B\uC740 \uC0AC\uC8FC\uB77C \uC815\uD0DD\uB2D8\uBCF4\uB2E4\uB294 \uBC84\uD141\uB2C8\uB2E4 \u2014 \uC0AC\uC8FC\uC5D0 \uC774\uBBF8 \uC784\uC218\xB7\uAC11\uBAA9\uC774\uB77C\uB294 \uADE0\uD615\uCD94\uAC00 \uC788\uAE30 \uB54C\uBB38.",
+    "\uD3ED\uD48D\uC6B0 \uC774\uD6C4 \uD68C\uBCF5\uAE30. \uCD95\uD1A0(\u6FC3\u571F)\uAC00 \uBCF4\uC11D\uC744 \uAC10\uC2F8 \uBCF4\uD638. \uC548\uC815\uAC10\uC774 \uB3CC\uC544\uC635\uB2C8\uB2E4.",
+    "\uC548\uC815\uC801 \uC7AC\uBB3C \uAE30\uD68C! \uBCF4\uC11D(\uC2E0\uAE08)\uC5D0\uAC8C \uB098\uBB34(\uAC11\uBAA9)\uC740 '\uC7AC\uBB3C'\uC785\uB2C8\uB2E4 \u2014 \uAC15\uCCA0\uC758 '\uBCA8 \uB098\uBB34'\uC640 \uB2EC\uB9AC \uBCF4\uC11D\uC5D0\uAC8C\uB294 '\uC548\uC815\uC801 \uC218\uC785'. \uB2E4\uB9CC \uB300\uC6B4 \uC804\uD658\uAE30\uC640 \uACA8\uCE58\uBA74\uC11C \uC9C1\uC7A5\xB7\uD658\uACBD\uC5D0 \uBCC0\uB3D9\uC774 \uC788\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+    "\uC0C8 \uB300\uC6B4 \uC801\uC751\uAE30. \uC5EC\uB984 \uC5D0\uB108\uC9C0\uAC00 \uC624\uBA74 \uBCF4\uC11D\uC740 \uBD80\uB2F4\uC2A4\uB7FD\uC2B5\uB2C8\uB2E4(\uAC15\uCCA0\uC740 \uB2E8\uB828\uC774 \uB418\uC9C0\uB9CC \uBCF4\uC11D\uC740 \uB179\uC744 \uC218 \uC788\uC74C). \uBB34\uB9AC\uD55C \uD655\uC7A5\uBCF4\uB2E4 \uC548\uC815\uC801\uC73C\uB85C.",
+  ],
+  pn:[
+    "\uD83C\uDF0D \uC138\uC0C1\uC774 \uD65C\uAE30\uCC28\uAC8C \uC6C0\uC9C1\uC774\uB294 \uCD08\uC5EC\uB984.\n\n\uD83D\uDC8E \uBCF4\uC11D\uC774 \uB530\uB73B\uD55C \uBE5B\uC744 \uBC1B\uC544 \uBE5B\uB098\uAE30 \uC2DC\uC791. \uC801\uB2F9\uD55C \uC628\uAE30\uB294 \uBCF4\uC11D\uC744 \uB354 \uC544\uB984\uB2F5\uAC8C \uD574\uC694.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC804\uBB38 \uBD84\uC57C\uC5D0\uC11C \uC790\uC2E0\uC744 \uC54C\uB9AC\uAE30 \uC2DC\uC791. \uC790\uACA9\uC99D\xB7\uD3EC\uD2B8\uD3F4\uB9AC\uC624 \uC815\uB9AC.\n\n\uD83D\uDCCC \uB4DC\uB7EC\uB0B4\uAE30\uB97C \uC2DC\uC791\uD558\uB294 \uD574.",
+    "\uD83C\uDF0D \uC138\uC0C1 \uC804\uCCB4\uAC00 '\uBCF4\uC5EC\uC8FC\uACE0 \uB098\uB220\uB77C'\uB294 \uC5D0\uB108\uC9C0!\n\n\uD83D\uDC8E \uD0DC\uC591\uBE5B \uC544\uB798 \uBCF4\uC11D\uC774 \uB208\uBD80\uC2DC\uAC8C \uBE5B\uB0A9\uB2C8\uB2E4! \uB2E4\uB9CC \uAC15\uCCA0(\uC815\uD0DD\uB2D8)\uACFC \uB2EC\uB9AC \uBCF4\uC11D\uC740 \uB108\uBB34 \uAC15\uD55C \uC5F4\uC5D0 \uC0C1\uD560 \uC218 \uC788\uC5B4\uC11C \uC270\uB294 \uC2DC\uAC04\uB3C4 \uD544\uC694\uD569\uB2C8\uB2E4. (\uB2E4\uD589\uD788 \uC6D0\uB798 \uC0AC\uC8FC\uC5D0 \uBB3C \uAE30\uC6B4\uC774 \uC788\uC5B4 \uADE0\uD615\uC744 \uC7A1\uC544\uC918\uC694)\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC0C1\uBC18\uAE30\uC5D0 \uC804\uBB38\uC131\uC744 \uC801\uADF9 \uB178\uCD9C! \uAC15\uC758\xB7\uC138\uBBF8\uB098\xB7SNS. \uD558\uBC18\uAE30\uC5D0 \uB0B4\uBA74 \uCDA9\uC804.\n\n\u23F0 6/21~7/7: \uD070 \uACB0\uC815\uC740 \uC774\uD6C4\uB85C.\n\n\uD83D\uDCCC \uB124\uD2B8\uC6CC\uD0B9\xB7\uC790\uC2E0\uC744 \uC54C\uB9AC\uB294 \uD65C\uB3D9\uC5D0 \uCD5C\uC801.",
+    "\uD83C\uDF0D \uC0AC\uD68C\uC758 \uC5F4\uAE30\uAC00 \uC2DD\uAE30 \uC2DC\uC791.\n\n\uD83D\uDC8E \uBCF4\uC11D\uC774 \uC548\uC815\uC744 \uB418\uCC3E\uB294 \uC2DC\uAE30. \uC778\uC0DD\uC758 \uD070 \uC804\uD658\uAE30(\uB300\uC6B4 \uAD50\uCCB4)\uC640 \uACA8\uCE58\uBA70 \uB0B4\uBA74\uC5D0\uC11C \uBCC0\uD654\uAC00 \uC77C\uC5B4\uB0A9\uB2C8\uB2E4.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC0C8\uB85C\uC6B4 \uBC29\uD5A5\uC744 \uC124\uACC4\uD558\uC138\uC694.\n\n\uD83D\uDCCC \uD655\uC0B0\uC5D0\uC11C \uCD95\uC801\uC73C\uB85C \uBC29\uD5A5\uC774 \uBC14\uB00C\uB294 \uD574.",
+    "\uD83C\uDF0D \uC0AC\uD68C\uAC00 \uC870\uC815\uAE30.\n\n\uD83D\uDC8E \u2605 \uBCF4\uC11D\uC774 \uAC00\uC744(\uC790\uAE30 \uBCF8\uB798 \uACC4\uC808)\uC5D0 \uAC00\uAE4C\uC6CC\uC9C0\uBA70 \uBE5B\uC774 \uC0B4\uC544\uB0A9\uB2C8\uB2E4! \uC0C8 \uB300\uC6B4\uC73C\uB85C 10\uB144\uAC04 \uBCF4\uC11D\uC744 \uC52C\uC5B4\uC8FC\uB294 \uBB3C(\uC784\uC218)\uC774 \uD568\uAED8.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC804\uBB38\uC131\uC744 \uAE30\uBC18\uC73C\uB85C \uCEE4\uB9AC\uC5B4 \uC7AC\uC124\uACC4.\n\n\uD83D\uDCCC \uB0B4\uC2E4\uC744 \uB2E4\uC9C0\uBA74\uC11C \uC804\uBB38\uC131\uC744 \uD0A4\uC6B0\uC138\uC694.",
+    "\uD83C\uDF0D \uC0AC\uD68C \uBD84\uC704\uAE30 \uC804\uD658\uC810.\n\n\uD83D\uDC8E \u2605\u2605 \uB9D1\uC740 \uAC00\uC744 \uD558\uB298\uC5D0\uC11C \uBCF4\uC11D\uC774 \uAC00\uC7A5 \uBE5B\uB098\uB294 \uC21C\uAC04! \uC637\uB9D0\uC5D0 '\uD63C\uC790 \uAC00\uC744\uC744 \uC990\uAE34\uB2E4'\uACE0 \uD588\uB294\uB370, \uB531 \uC774 \uD574. 10\uB144 \uC911 \uC790\uAE30 \uB2A5\uB825\uC774 \uCD5C\uACE0\uC870!\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC790\uACA9 \uCDE8\uB4DD, \uC2B9\uC9C4, \uC804\uBB38\uAC00\uB85C\uC11C \uC778\uC815\uBC1B\uAE30\uC5D0 \uCD5C\uC801. \uC774 \uD574\uC758 \uC131\uACFC\uAC00 \uB2E4\uC74C 10\uB144\uC758 \uAE30\uBC18.\n\n\u23F0 9\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0.\n\n\uD83D\uDCCC \uC804\uBB38\uC131\uC758 \uC815\uC810. \uB193\uCE58\uC9C0 \uB9C8\uC138\uC694!",
+    "\uD83C\uDF0D \uC0AC\uD68C \uD558\uB77D\uAE30 \uC2DC\uC791.\n\n\uD83D\uDC8E \uC790\uAE30 \uC5D0\uB108\uC9C0\uAC00 \uB118\uCE58\uC9C0\uB9CC, '\uB108\uBB34 \uC644\uBCBD\uC8FC\uC758'\uC5D0 \uBE60\uC9C0\uC9C0 \uC54A\uB3C4\uB85D \uC8FC\uC758. \uC815\uD0DD\uB2D8\uACFC \uB2EC\uB9AC \uC774 \uD574\uB294 '\uB0B4\uB824\uB193\uAE30'\uAC00 \uD3EC\uC778\uD2B8.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC0AC\uD68C \uD558\uB77D\uAE30\uC5D0 \uB9DE\uCDB0 \uBC29\uC5B4 \uC900\uBE44 \uC2DC\uC791.\n\n\uD83D\uDCCC \uB0B4\uC2E4 \uB2E4\uC9C0\uAE30 + \uD604\uAE08 \uD655\uBCF4.",
+    "\uD83C\uDF0D \u26A0 12\uB144 \uC8FC\uAE30 \uACBD\uAE30 \uCE68\uCCB4 \uC2DC\uC791.\n\n\uD83D\uDC8E \uAC19\uC740 \uD328\uD134 \uBC18\uBCF5\uC73C\uB85C \uB2F5\uB2F5\uD558\uC9C0\uB9CC, '\uC775\uC219\uD55C \uAC83\uC758 \uC2EC\uD654'\uB77C\uACE0 \uC0DD\uAC01\uD558\uC138\uC694. \uC815\uD0DD\uB2D8\uC740 \uC774 \uD574\uC5D0 '\uC0DD\uC0B0\uC131\uC774 \uBD84\uC0B0'\uB418\uC9C0\uB9CC, \uC8FC\uC5F0\uB2D8\uC740 '\uC804\uBB38\uC131 \uC2EC\uD654'\uAC00 \uD3EC\uC778\uD2B8.\n\n\uD83D\uDCA1 \uD560 \uC77C: 2032\uB144 \uD55C\uD30C\uC5D0 \uB300\uBE44\uD574 \uD604\uAE08 \uD655\uBCF4.\n\n\uD83D\uDCCC \uD655\uC7A5\uBCF4\uB2E4 \uB0B4\uC2E4.",
+    "\uD83C\uDF0D \u26A0\u26A0 12\uB144 \uC8FC\uAE30 \uACBD\uC81C \uBC14\uB2E5.\n\n\uD83D\uDC8E \uCC28\uAC00\uC6B4 \uBB3C\uC5D0 \uC7A0\uAE30\uB294 \uBCF4\uC11D. \uC5D0\uB108\uC9C0 \uC18C\uBAA8\uAC00 \uD06C\uC9C0\uB9CC, \uC6D0\uB798 \uADE0\uD615\uC774 \uC88B\uC740 \uC0AC\uC8FC\uB77C \uC815\uD0DD\uB2D8\uBCF4\uB2E4\uB294 \uBC84\uD301\uB2C8\uB2E4. \uC815\uD0DD\uB2D8\uC740 '\uC6D0\uB798 \uCD94\uC6B4 \uC0AC\uC8FC\uC5D0 \uD55C\uD30C'\uB77C \uC774\uC911 \uD0C0\uACA9\uC774\uC9C0\uB9CC, \uC8FC\uC5F0\uB2D8\uC740 '\uC6D0\uB798 \uADE0\uD615 \uC7A1\uD78C \uC0AC\uC8FC'\uB77C \uBC84\uD2F8 \uD798\uC774 \uC788\uC5B4\uC694.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uBC29\uC5B4 \uCD5C\uC6B0\uC120! \uC804\uBB38\uC131\uC774\uB77C\uB294 \uBB34\uAE30\uAC00 \uC774 \uACA8\uC6B8\uC744 \uACAC\uB514\uAC8C \uD574\uC90D\uB2C8\uB2E4.\n\n\uD83D\uDCCC \uC0B4\uC544\uB0A8\uC73C\uBA74 \uB2E4\uC74C \uBD09\uC774 \uBC18\uB4DC\uC2DC \uC635\uB2C8\uB2E4.",
+    "\uD83C\uDF0D \uC544\uC9C1 \uCDA5\uC9C0\uB9CC \uBD09 \uAE30\uC6B4\uC774 \uC2AC\uC2AC.\n\n\uD83D\uDC8E \uCD95\uD1A0\uAC00 \uBCF4\uC11D\uC744 \uAC10\uC2F8 \uBCF4\uD638. \uC548\uC815\uAC10\uC774 \uB3CC\uC544\uC635\uB2C8\uB2E4.\n\n\uD83D\uDCA1 \uD560 \uC77C: 2032\uB144 \uC704\uAE30\uC5D0\uC11C \uBC30\uC6B4 \uAC83\uC744 \uC815\uB9AC. \uBD09 \uC900\uBE44.",
+    "\uD83C\uDF0D \u2605 \uBD09\uC774 \uC654\uC2B5\uB2C8\uB2E4! 12\uB144 \uC8FC\uAE30 \uBC18\uB4F1!\n\n\uD83D\uDC8E \uBD09 \uD759 \uC18D\uC5D0\uC11C \uBCF4\uC11D\uC774 \uB4DC\uB7EC\uB098\uAE30 \uC2DC\uC791. \uC815\uD0DD\uB2D8\uC740 '\uB3C4\uB07C\uAC00 \uBCA8 \uB098\uBB34\uB97C \uB9CC\uB0A8(\uD3ED\uBC1C\uC801 \uD655\uC7A5)'\uC774\uC9C0\uB9CC, \uC8FC\uC5F0\uB2D8\uC740 '\uBCF4\uC11D\uC774 \uD759\uC5D0\uC11C \uBC1C\uAD74(\uC810\uC9C4\uC801 \uC131\uC7A5)'\uC785\uB2C8\uB2E4. \uB300\uC6B4 \uC804\uD658\uAE30\uC640 \uACA8\uCE58\uBBC0\uB85C \uBCC0\uD654\uB3C4 \uD568\uAED8.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uBD09\uC758 \uC21C\uD48D\uC744 \uD0C0\uB418, \uBB34\uB9AC\uD558\uC9C0 \uC54A\uC73C\uBA74\uC11C \uC131\uC7A5.\n\n\uD83D\uDCCC \uBCC0\uD654 \uC18D\uC758 \uAE30\uD68C. \uC7AC\uBB3C \uAE30\uD68C\uB97C \uC7A1\uB418 \uBCF4\uC218\uC801\uC73C\uB85C.",
+    "\uD83C\uDF0D \uBD09\uC758 \uC808\uC815. \uC0AC\uD68C \uC131\uC7A5 \uAC00\uC18D.\n\n\uD83D\uDC8E \uBD09\uC740 \uB098\uBB34\uC758 \uACC4\uC808\uC774\uACE0, \uBCF4\uC11D\uC5D0\uAC8C \uB098\uBB34\uB294 '\uC7AC\uBB3C'. \uC815\uD0DD\uB2D8\uC758 '\uBCA8 \uB098\uBB34(\uD3ED\uBC1C\uC801 \uC7AC\uBB3C)'\uACFC \uB2EC\uB9AC, \uC8FC\uC5F0\uB2D8\uC5D0\uAC8C\uB294 '\uC548\uC815\uC801 \uC218\uC785'\uC785\uB2C8\uB2E4. \uB2E4\uB9CC \uC0C8 \uB300\uC6B4 \uC801\uC751\uAE30\uB77C \uBB34\uB9AC\uD55C \uD655\uC7A5\uC740 \uC790\uC81C.\n\n\uD83D\uDCA1 \uD560 \uC77C: \uC548\uC815\uC801 \uAE30\uBC18 \uC704\uC5D0\uC11C \uC810\uC9C4\uC801 \uC131\uC7A5.\n\n\u23F0 3\uC6D4 \uD558\uC21C: \uBD84\uC704\uAE30 \uAE09\uBCC0 \uAC00\uB2A5.",
+  ],
+},
 };
 
-const sColor = (s) => s>=4?"#059669":s>=2?"#2563eb":s>=0?"#6b7280":s>=-1?"#d97706":"#dc2626";
-const sBg = (s) => s>=4?"#ecfdf5":s>=2?"#eff6ff":s>=0?"#f9fafb":s>=-1?"#fffbeb":"#fef2f2";
-const sLabel = (s) => s>=4?"아주 좋음":s>=2?"좋음":s>=0?"보통":s>=-1?"주의":"어려움";
-const sEmoji = (s) => s>=4?"\uD83D\uDD25":s>=2?"\u2600\uFE0F":s>=0?"\u2601\uFE0F":s>=-1?"\uD83C\uDF27\uFE0F":"\u26C8\uFE0F";
+const sc=(s)=>s>=4?"#059669":s>=2?"#2563eb":s>=0?"#6b7280":s>=-1?"#d97706":"#dc2626";
+const sb=(s)=>s>=4?"#ecfdf5":s>=2?"#eff6ff":s>=0?"#f9fafb":s>=-1?"#fffbeb":"#fef2f2";
+const sl=(s)=>s>=4?"\uC544\uC8FC \uC88B\uC74C":s>=2?"\uC88B\uC74C":s>=0?"\uBCF4\uD1B5":s>=-1?"\uC8FC\uC758":"\uC5B4\uB824\uC6C0";
+const se=(s)=>s>=4?"\uD83D\uDD25":s>=2?"\u2600\uFE0F":s>=0?"\u2601\uFE0F":s>=-1?"\uD83C\uDF27\uFE0F":"\u26C8\uFE0F";
 
-function ChartLine({values,color,sel,onSel}){
-  const w=760,h=160,px=40,maxV=5;
-  const pts=values.map((v,i)=>({x:px+(i/(values.length-1))*(w-px*2),y:h/2-(v/maxV)*(h/2-20)}));
+function CL({v,c,s,onS}){
+  const w=760,h=160,px=40,m=5;
+  const pts=v.map((val,i)=>({x:px+(i/(v.length-1))*(w-px*2),y:h/2-(val/m)*(h/2-20)}));
   return(<g>
-    <polyline points={pts.map(p=>`${p.x},${p.y}`).join(" ")} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" opacity={0.4}/>
-    {pts.map((p,i)=>(<g key={i} onClick={()=>onSel(i)} style={{cursor:"pointer"}}>
-      <circle cx={p.x} cy={p.y} r={sel===i?16:10} fill={sel===i?color:"white"} stroke={sColor(values[i])} strokeWidth={2.5}/>
-      <text x={p.x} y={p.y+5} textAnchor="middle" fontSize={sel===i?12:10} fontWeight={700} fill={sel===i?"white":sColor(values[i])}>{sEmoji(values[i])}</text>
+    <polyline points={pts.map(p=>`${p.x},${p.y}`).join(" ")} fill="none" stroke={c} strokeWidth={2.5} strokeLinejoin="round" opacity={0.4}/>
+    {pts.map((p,i)=>(<g key={i} onClick={()=>onS(i)} style={{cursor:"pointer"}}>
+      <circle cx={p.x} cy={p.y} r={s===i?16:10} fill={s===i?c:"white"} stroke={sc(v[i])} strokeWidth={2.5}/>
+      <text x={p.x} y={p.y+5} textAnchor="middle" fontSize={s===i?12:10} fontWeight={700} fill={s===i?"white":sc(v[i])}>{se(v[i])}</text>
     </g>))}
   </g>);
 }
 
-function Person({pk}){
-  const d=data[pk];
-  const[sel,setSel]=useState(null);
+function P({pk}){
+  const d=D[pk];
+  const[s,setS]=useState(null);
   const w=760,h=160,px=40;
-  const soc=sel!==null?SOCIAL[sel]:null;
-  const sm=sel!==null?SEUN_META[sel]:null;
+  const soc=s!==null?SOC[s]:null;
+  const sm=s!==null?SM[s]:null;
   return(
     <div style={{background:"white",borderRadius:20,padding:"20px 20px 16px",boxShadow:"0 2px 12px rgba(0,0,0,0.06)",border:"1px solid #e5e7eb",marginBottom:24}}>
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
@@ -130,51 +127,51 @@ function Person({pk}){
         <line x1={px} y1={h/2} x2={w-px} y2={h/2} stroke="#e5e7eb" strokeWidth={1} strokeDasharray="4,4"/>
         <text x={12} y={30} fontSize={8} fill="#9ca3af">좋음</text>
         <text x={12} y={h-10} fontSize={8} fill="#9ca3af">주의</text>
-        <ChartLine values={d.trad} color="#d97706" sel={sel} onSel={i=>setSel(sel===i?null:i)}/>
-        <ChartLine values={d.pai} color="#2563eb" sel={sel} onSel={i=>setSel(sel===i?null:i)}/>
-        {YEARS.map((y,i)=>{const x=px+(i/(YEARS.length-1))*(w-px*2);return<text key={y} x={x} y={h+16} textAnchor="middle" fontSize={10} fontWeight={sel===i?700:400} fill={sel===i?"#111827":"#9ca3af"}>{y}</text>;})}
+        <CL v={d.trad} c="#d97706" s={s} onS={i=>setS(s===i?null:i)}/>
+        <CL v={d.pai} c="#2563eb" s={s} onS={i=>setS(s===i?null:i)}/>
+        {YEARS.map((y,i)=>{const x=px+(i/(YEARS.length-1))*(w-px*2);return<text key={y} x={x} y={h+16} textAnchor="middle" fontSize={10} fontWeight={s===i?700:400} fill={s===i?"#111827":"#9ca3af"}>{y}</text>;})}
       </svg>
-      <div style={{display:"flex",gap:16,justifyContent:"center",marginBottom:sel!==null?12:0}}>
+      <div style={{display:"flex",gap:16,justifyContent:"center",marginBottom:s!==null?12:0}}>
         <div style={{display:"flex",alignItems:"center",gap:4,fontSize:12}}><span style={{width:18,height:4,background:"#d97706",borderRadius:2,display:"inline-block"}}/><span style={{color:"#92400e",fontWeight:600}}>전통 사주이론</span></div>
         <div style={{display:"flex",alignItems:"center",gap:4,fontSize:12}}><span style={{width:18,height:4,background:"#2563eb",borderRadius:2,display:"inline-block"}}/><span style={{color:"#1d4ed8",fontWeight:600}}>파이 이론</span></div>
       </div>
-      {sel!==null&&(
+      {s!==null&&(
         <div style={{background:"#f9fafb",borderRadius:16,padding:16,border:"1px solid #e5e7eb"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-            <span style={{fontSize:22}}>{sEmoji(d.pai[sel])}</span>
-            <span style={{fontWeight:800,fontSize:17,color:"#111827"}}>{YEARS[sel]}년</span>
-            {sm&&<span style={{fontSize:11,padding:"3px 10px",borderRadius:8,background:"#e0f2fe",color:"#0369a1"}}>{sm.season}</span>}
-            {sm&&<span style={{fontSize:11,padding:"3px 10px",borderRadius:8,background:sm.direction.includes("확산")?"#fef3c7":"#e0e7ff",color:sm.direction.includes("확산")?"#92400e":"#3730a3"}}>{sm.direction}</span>}
-            {sm?.pivot&&<span style={{fontSize:10,padding:"3px 8px",borderRadius:8,background:"#fecaca",color:"#991b1b"}}>{sm.pivot}</span>}
+            <span style={{fontSize:22}}>{se(d.pai[s])}</span>
+            <span style={{fontWeight:800,fontSize:17,color:"#111827"}}>{YEARS[s]}년</span>
+            {sm&&<span style={{fontSize:11,padding:"3px 10px",borderRadius:8,background:"#e0f2fe",color:"#0369a1"}}>{sm.s}</span>}
+            {sm&&<span style={{fontSize:11,padding:"3px 10px",borderRadius:8,background:sm.d.includes("\uD655\uC0B0")?"#fef3c7":"#e0e7ff",color:sm.d.includes("\uD655\uC0B0")?"#92400e":"#3730a3"}}>{sm.d}</span>}
+            {sm?.p&&<span style={{fontSize:10,padding:"3px 8px",borderRadius:8,background:"#fecaca",color:"#991b1b"}}>{sm.p}</span>}
           </div>
           {soc&&(
             <div style={{marginBottom:10,padding:"12px 14px",background:"#f0fdf4",borderRadius:12,borderLeft:"4px solid #22c55e"}}>
-              <div style={{fontSize:13,fontWeight:700,color:"#15803d",marginBottom:4}}>{soc.icon} {soc.title}</div>
-              <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>{soc.body}</div>
-              {soc.warn&&<div style={{fontSize:12.5,color:"#dc2626",marginTop:6,fontWeight:600,lineHeight:1.5}}>{soc.warn}</div>}
+              <div style={{fontSize:13,fontWeight:700,color:"#15803d",marginBottom:4}}>{soc.i} {soc.t}</div>
+              <div style={{fontSize:13,color:"#374151",lineHeight:1.7}}>{soc.b}</div>
+              {soc.w&&<div style={{fontSize:12.5,color:"#dc2626",marginTop:6,fontWeight:600,lineHeight:1.5}}>{soc.w}</div>}
             </div>
           )}
           <div style={{display:"grid",gap:10}}>
             <div style={{padding:"12px 14px",background:"white",borderRadius:12,borderLeft:"4px solid #d97706"}}>
               <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:"#92400e"}}>📜 전통 사주이론의 판단</span>
-                <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:sBg(d.trad[sel]),color:sColor(d.trad[sel]),fontWeight:700}}>{sLabel(d.trad[sel])}</span>
+                <span style={{fontSize:12,fontWeight:700,color:"#92400e"}}>📜 전통 사주이론</span>
+                <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:sb(d.trad[s]),color:sc(d.trad[s]),fontWeight:700}}>{sl(d.trad[s])}</span>
               </div>
-              <div style={{fontSize:13,color:"#374151",lineHeight:1.8}}>{d.tradNotes[sel]}</div>
+              <div style={{fontSize:13,color:"#374151",lineHeight:1.8}}>{d.tn[s]}</div>
             </div>
             <div style={{padding:"12px 14px",background:"white",borderRadius:12,borderLeft:"4px solid #2563eb"}}>
               <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:"#1d4ed8"}}>🥧 파이 이론의 판단</span>
-                <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:sBg(d.pai[sel]),color:sColor(d.pai[sel]),fontWeight:700}}>{sLabel(d.pai[sel])}</span>
+                <span style={{fontSize:12,fontWeight:700,color:"#1d4ed8"}}>🥧 파이 이론</span>
+                <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:sb(d.pai[s]),color:sc(d.pai[s]),fontWeight:700}}>{sl(d.pai[s])}</span>
               </div>
-              <div style={{fontSize:13,color:"#374151",lineHeight:1.8,whiteSpace:"pre-line"}}>{d.paiNotes[sel]}</div>
+              <div style={{fontSize:13,color:"#374151",lineHeight:1.8,whiteSpace:"pre-line"}}>{d.pn[s]}</div>
             </div>
           </div>
-          {Math.abs(d.trad[sel]-d.pai[sel])>=2&&(
+          {Math.abs(d.trad[s]-d.pai[s])>=2&&(
             <div style={{marginTop:8,padding:"10px 14px",background:"#fef3c7",borderRadius:10,border:"1px solid #fcd34d"}}>
               <div style={{fontSize:12,color:"#92400e",lineHeight:1.6}}>
                 <strong>💡 두 이론의 시각이 다릅니다.</strong>{" "}
-                {d.pai[sel]>d.trad[sel]?"파이 이론은 '세상의 흐름'과 '계절적 균형'을 추가로 봐서 더 긍정적입니다. 전통 이론은 사주 내부의 충돌을 더 엄격하게 평가합니다.":"전통 이론이 사주 내부의 조화를 더 높이 평가합니다."}
+                {d.pai[s]>d.trad[s]?"파이 이론은 '세상의 흐름'과 '계절적 균형'을 추가로 봐서 더 긍정적입니다.":"전통 이론이 사주 내부의 조화를 더 높이 평가합니다."}
               </div>
             </div>
           )}
@@ -194,17 +191,17 @@ export default function App(){
         <p style={{fontSize:12,color:"#b0b0b0",margin:"8px 0 0"}}>그래프의 점을 클릭하면 그 해의 상세 분석을 볼 수 있어요</p>
       </div>
       <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:20}}>
-        {[{s:4,e:"\uD83D\uDD25",l:"아주 좋음"},{s:2,e:"\u2600\uFE0F",l:"좋음"},{s:0,e:"\u2601\uFE0F",l:"보통"},{s:-1,e:"\uD83C\uDF27\uFE0F",l:"주의"},{s:-3,e:"\u26C8\uFE0F",l:"어려움"}].map(({s,e,l})=>(
+        {[{s:4,e:"\uD83D\uDD25",l:"\uC544\uC8FC \uC88B\uC74C"},{s:2,e:"\u2600\uFE0F",l:"\uC88B\uC74C"},{s:0,e:"\u2601\uFE0F",l:"\uBCF4\uD1B5"},{s:-1,e:"\uD83C\uDF27\uFE0F",l:"\uC8FC\uC758"},{s:-3,e:"\u26C8\uFE0F",l:"\uC5B4\uB824\uC6C0"}].map(({s:v,e,l})=>(
           <div key={l} style={{display:"flex",alignItems:"center",gap:3,fontSize:12,color:"#6b7280"}}><span>{e}</span>{l}</div>
         ))}
       </div>
-      <Person pk="jt"/>
-      <Person pk="jy"/>
+      <P pk="jt"/>
+      <P pk="jy"/>
       <div style={{background:"#f8fafc",borderRadius:14,padding:16,border:"1px solid #e2e8f0",fontSize:13,color:"#475569",lineHeight:1.8}}>
-        <div style={{fontWeight:700,marginBottom:6,color:"#334155"}}>📖 이 분석은 이렇게 만들어졌어요</div>
-        <div><strong>전통 사주이론</strong>은 수천 년간 축적된 고전을 바탕으로, 사주 내부의 오행 균형과 충돌을 분석합니다.</div>
-        <div style={{marginTop:6}}><strong>파이 이론</strong>은 고전의 핵심(절기·계절)을 현대적으로 재해석하여, '세상의 흐름' 안에서 '내 강점을 어떻게 쓸 것인가'에 초점을 맞춥니다.</div>
-        <div style={{marginTop:6,color:"#94a3b8",fontSize:12}}>두 이론은 서로 보완적입니다. 전통 이론이 '정밀 진단'이라면, 파이 이론은 '실천 가이드'입니다.</div>
+        <div style={{fontWeight:700,marginBottom:6,color:"#334155"}}>📖 두 사람의 사주가 다른 이유</div>
+        <div><strong>이정택</strong>은 강철(庚金) 기질로 겨울에 태어나 <strong>불이 간절히 필요한 사주</strong>입니다. 불이 오는 해(2026·2030·2034)에 크게 변하고, 불이 꺼지는 해(2032)에 크게 힘듭니다.</div>
+        <div style={{marginTop:6}}><strong>이주연</strong>은 보석(辛金) 기질로 가을에 태어나 <strong>이미 균형이 잡힌 사주</strong>입니다. 같은 불이 와도 강철은 단련되지만 보석은 녹을 수 있어, 반응이 다릅니다. 가을(2029)에 가장 빛나고, 여름(2035)에는 적응이 필요합니다.</div>
+        <div style={{marginTop:6,color:"#94a3b8",fontSize:12}}>같은 해를 살아도 사주가 다르면 운의 방향이 다릅니다. 이것이 사주 분석의 핵심입니다.</div>
       </div>
     </div>
   );
